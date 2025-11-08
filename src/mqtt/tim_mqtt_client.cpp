@@ -61,6 +61,14 @@ void tim::mqtt_client::publish(const std::filesystem::path &topic,
               topic.string().c_str(), std::string(data, size).c_str());
 }
 
+void tim::mqtt_client::publish(const std::filesystem::path &topic,
+                               const std::string &s,
+                               std::uint8_t qos,
+                               bool retain)
+{
+    publish(topic, s.c_str(), s.size(), qos, retain);
+}
+
 void tim::mqtt_client::subscribe(const std::filesystem::path &topic, message_handler mh, std::uint8_t qos)
 {
     assert(!topic.empty() && "Topic must not be empty.");

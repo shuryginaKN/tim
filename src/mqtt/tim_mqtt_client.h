@@ -39,6 +39,11 @@ public:
                  std::uint8_t qos = 1,
                  bool retain = false);
 
+    void publish(const std::filesystem::path &topic,
+                 const std::string &s,
+                 std::uint8_t qos = 1,
+                 bool retain = false);
+
     using message_handler = std::function<void (const std::filesystem::path &topic, const char *data, std::size_t size)>;
 
     void subscribe(const std::filesystem::path &topic, message_handler mh, std::uint8_t qos = 1);
