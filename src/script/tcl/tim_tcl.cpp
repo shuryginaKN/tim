@@ -11,6 +11,7 @@
 // Commands
 #include "tim_tcl_cmd_general.h"
 #include "tim_tcl_cmd_term.h"
+#include "tim_tcl_cmd_user.h"
 
 #include "lil.hpp"
 #include "utf8/utf8.h"
@@ -31,6 +32,7 @@ tim::tcl::tcl(tim::a_terminal *term)
 
     tim::tcl_add_general(_d->_lil);
     tim::tcl_add_term(_d->_lil);
+    tim::tcl_add_user(_d->_lil);
 }
 
 tim::tcl::~tcl()

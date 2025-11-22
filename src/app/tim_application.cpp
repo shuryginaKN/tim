@@ -45,7 +45,7 @@ tim::application::application(int argc, char **argv)
     std::setbuf(stderr, nullptr);
 
 #ifdef TIM_OS_LINUX
-    std::locale::global(std::locale("en_US.utf8"));
+    std::locale::global(std::locale("en_US.UTF-8"));
 
     {
         struct sigaction action;
