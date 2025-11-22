@@ -14,6 +14,7 @@
 
 // Services
 #include "tim_post_service.h"
+#include "tim_user_service.h"
 #include "tim_prompt_service.h"
 
 #include <cassert>
@@ -76,6 +77,7 @@ tim::application::application(int argc, char **argv)
 
     _d->_prompt_inetd = tim::inetd::start<tim::prompt_service>(&_d->_mg, tim::TELNET_PORT, false);
     _d->_post_service.reset(new tim::post_service());
+    _d->_user_service.reset(new tim::user_service());
 }
 
 tim::application::~application()
