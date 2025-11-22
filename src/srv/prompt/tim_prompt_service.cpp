@@ -20,7 +20,7 @@ tim::prompt_service::prompt_service(mg_connection *c)
 {
     _d->_telnet.reset(new tim::telnet_server(this));
     _d->_terminal.reset(new tim::vt(_d->_telnet.get()));
-    _d->_tcl.reset(new tim::tcl(_d->_terminal.get()));
+    _d->_tcl.reset(new tim::tcl(_d->_terminal.get(), _d->_user.id));
     _d->_shell.reset(new tim::prompt_shell(_d->_terminal.get(), _d->_tcl.get()));
 
     _d->_topic = std::filesystem::path("post") / std::to_string(id());
@@ -49,6 +49,7 @@ tim::prompt_service::~prompt_service() = default;
 
 void tim::p::prompt_service::subscribe()
 {
+    tim::app()->mqtt()->publish("user/connect", _user.id);
     tim::app()->mqtt()->subscribe(_topic.parent_path() / "+",
                                   std::bind(&tim::p::prompt_service::on_post, this,
                                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));

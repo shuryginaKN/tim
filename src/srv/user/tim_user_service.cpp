@@ -31,64 +31,80 @@ tim::user_service::~user_service() = default;
 void tim::p::user_service::subscribe()
 {
 
-    // Две подписки
-    tim::app()->mqtt()->subscribe("set_nick/+",
-                                  std::bind(&tim::p::user_service::on_change, this,
+    tim::app()->mqtt()->subscribe("user/connect",
+                                  std::bind(&tim::p::user_service::connect, this,
                                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
-    tim::app()->mqtt()->subscribe("set_icon/+",
-                                  std::bind(&tim::p::user_service::on_change, this,
+    tim::app()->mqtt()->subscribe("user/setnick/+",
+                                  std::bind(&tim::p::user_service::setnick, this,
+                                            std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+    tim::app()->mqtt()->subscribe("user/seticon/+",
+                                  std::bind(&tim::p::user_service::seticon, this,
                                             std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 }
 
-void tim::p::user_service::on_change(const std::filesystem::path &topic, const char *data, std::size_t size)
+void tim::p::user_service::connect(const std::filesystem::path &topic, const char *data, std::size_t size)
 {
+    (void) topic;
+
+    tim::sqlite_query q(tim::app()->db(),
+                        "INSERT OR IGNORE INTO user (id) VALUES (?)");
+    if (!q.prepare())
+        TIM_TRACE(Fatal,
+                  TIM_TR("Failed to prepare query '%s'."_en,
+                         "Не могу подготовить запрос '%s' к базе данных."_ru),
+                  q.sql().c_str());
+    const std::string user_id(data, size);
+    q.bind(1, user_id);
+    if (!q.exec())
+        TIM_TRACE(Error,
+                  TIM_TR("Failed to create user '%s'."_en,
+                         "Ошибка при создании пользователя '%s'."_ru),
+                  user_id.c_str());
+
+}
+
+void tim::p::user_service::setnick(const std::filesystem::path &topic, const char *data, std::size_t size)
+{
+    tim::sqlite_query q(tim::app()->db(),
+                        "UPDATE user SET nick = ? WHERE id = ?");
+    if (!q.prepare())
+            TIM_TRACE(Fatal,
+                TIM_TR("Failed to prepare query '%s'."_en,
+                       "Не могу подготовить запрос '%s' к базе данных."_ru),
+                q.sql().c_str());
+    const std::string nick(data, size);
     const tim::uuid user_id = topic.filename().string();
-    const std::string new_value(data, size);
+    q.bind(1, nick);
+    q.bind(2, user_id.to_string());
 
-    const std::string command = topic.parent_path().filename().string(); // "setNick" или "setIcon"
+    if (!q.exec())
+        TIM_TRACE(Error,
+                  TIM_TR("Failed to update nick for user '%s'."_en,
+                         "Ошибка при обновлении ника у пользователя '%s'."_ru),
+                  user_id.to_string().c_str());
 
+}
 
-    if (command == "setNick")
-    {
-        tim::sqlite_query q(tim::app()->db(),
-                            "UPDATE user SET nick = ? WHERE id = ?");
-        if (!q.prepare())
+void tim::p::user_service::seticon(const std::filesystem::path &topic, const char *data, std::size_t size)
+{
+    tim::sqlite_query q(tim::app()->db(),
+                        "UPDATE user SET icon = ? WHERE id = ?");
+    if (!q.prepare())
             TIM_TRACE(Fatal,
                 TIM_TR("Failed to prepare query '%s'."_en,
                        "Не могу подготовить запрос '%s' к базе данных."_ru),
                 q.sql().c_str());
+    const std::string icon(data, size);
+    const tim::uuid user_id = topic.filename().string();
+    q.bind(1, icon);
+    q.bind(2, user_id.to_string());
 
-        q.bind(1, new_value);
-        q.bind(2, user_id.to_string());
-        q.bind(3, std::string(data, size));
-
-         if (!q.exec())
-            TIM_TRACE(Error,
-                TIM_TR("Failed to update nick for user '%s'."_en,
-                       "Ошибка при обновлении ника у пользователя '%s'."_ru),
-                user_id.to_string().c_str());
-    }
-     else if (command == "setIcon")
-    {
-        tim::sqlite_query q(tim::app()->db(),
-            "UPDATE user SET icon = ? WHERE id = ?");
-
-        if (!q.prepare())
-            TIM_TRACE(Fatal,
-                TIM_TR("Failed to prepare query '%s'."_en,
-                       "Не могу подготовить запрос '%s' к базе данных."_ru),
-                q.sql().c_str());
-
-        q.bind(1, new_value);
-        q.bind(2, user_id.to_string());
-        q.bind(3, std::string(data, size));
-
-        if (!q.exec())
-            TIM_TRACE(Error,
-                TIM_TR("Failed to update icon for user '%s'."_en,
-                       "Ошибка при обновлении иконки у пользователя '%s'."_ru),
-                user_id.to_string().c_str());
-    }
+    if (!q.exec())
+        TIM_TRACE(Error,
+                  TIM_TR("Failed to update icon for user '%s'."_en,
+                         "Ошибка при обновлении иконки у пользователя '%s'."_ru),
+                  user_id.to_string().c_str());
 
 }

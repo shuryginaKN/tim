@@ -21,11 +21,12 @@
 
 // Public
 
-tim::tcl::tcl(tim::a_terminal *term)
+tim::tcl::tcl(tim::a_terminal *term, const tim::uuid &user_id)
     : tim::a_script_engine("Tcl", term)
     , _d(new tim::p::tcl(this))
 {
     _d->_lil = lil_new();
+    _d->_user_id = user_id;
 
     lil_callback(_d->_lil, LIL_CALLBACK_WRITE, (lil_callback_proc_t)tim::p::tcl::write);
     lil_callback(_d->_lil, LIL_CALLBACK_DISPATCH, (lil_callback_proc_t)tim::p::tcl::dispatch);
@@ -38,6 +39,11 @@ tim::tcl::tcl(tim::a_terminal *term)
 tim::tcl::~tcl()
 {
     lil_free(_d->_lil);
+}
+
+const tim::uuid &tim::tcl::user_id() const
+{
+    return _d->_user_id;
 }
 
 bool tim::tcl::evaluating() const

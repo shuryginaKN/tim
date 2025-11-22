@@ -26,7 +26,7 @@ CREATE TABLE user
 (
     id VARCHAR PRIMARY KEY NOT NULL CHECK(id != '""' AND id != '"{00000000-0000-0000-0000-000000000000}"'),
 
-    pub_key VARCHAR UNIQUE NOT NULL, -- Public key.
+    pub_key VARCHAR UNIQUE, -- Public key.
     nick VARCHAR UNIQUE,
     icon VARCHAR,
     motto VARCHAR

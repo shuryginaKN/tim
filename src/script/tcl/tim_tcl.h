@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tim_a_script_engine.h"
+#include "tim_uuid.h"
 
 #include <cstddef>
 #include <memory>
@@ -24,8 +25,10 @@ class tcl : public tim::a_script_engine
 
 public:
 
-    explicit tcl(tim::a_terminal *term);
+    tcl(tim::a_terminal *term, const tim::uuid &user_id);
     virtual ~tcl();
+
+    const tim::uuid &user_id() const;
 
     bool evaluating() const override;
     bool eval(const std::string &program, std::string *res = nullptr) override;

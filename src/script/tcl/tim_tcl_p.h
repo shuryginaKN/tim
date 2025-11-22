@@ -1,5 +1,7 @@
 #pragma once
 
+#include "tim_uuid.h"
+
 #include <cassert>
 #include <string>
 
@@ -28,6 +30,7 @@ struct tcl
     tim::tcl *const _q;
 
     lil_t _lil = nullptr;
+    tim::uuid _user_id;
     bool _evaluating = false;
     std::string _prompt = "► ";
     std::string _error_msg;
