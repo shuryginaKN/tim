@@ -43,7 +43,43 @@ static lil_value_t tim_tcl_cmd_puts(lil_t lil, size_t argc, lil_value_t *argv)
     switch (argc)
     {
         case 1:
-            tcl->terminal()->protocol()->write_str(lil_to_string(argv[0]));
+
+            const char* text = lil_to_string(argv[0]);
+
+            if (std::strncmp(text, "nick:", 5) == 0)
+            {
+                const char* nick = text + 5;   // UTF-8 строка ника
+                tcl->terminal()->protocol()->write_str(
+                    (std::string)"[setNick] " + nick + "\n"
+                );
+
+                // здесь вызывается логика изменения ника
+                tim::app()->mqtt()->publish(
+                    "setNick/" + tcl->terminal()->id().to_string(),
+                    nick,
+                    std::strlen(nick)
+                );
+
+                return nullptr;
+            }
+
+            if (std::strncmp(text, "icon:", 5) == 0)
+            {
+                const char* icon = text + 5;   // base64-данные
+                tcl->terminal()->protocol()->write_str(
+                    (std::string)"[setIcon] <image data>\n"
+                );
+
+                tim::app()->mqtt()->publish(
+                    "setIcon/" + tcl->terminal()->id().to_string(),
+                    icon,
+                    std::strlen(icon)
+                );
+
+                return nullptr;
+            }
+
+            tcl->terminal()->protocol()->write_str(text);
             tcl->terminal()->protocol()->write("\n", 1);
             return nullptr;
 
@@ -56,7 +92,25 @@ static lil_value_t tim_tcl_cmd_puts(lil_t lil, size_t argc, lil_value_t *argv)
                 return nullptr;
             }
 
-            tcl->terminal()->protocol()->write_str(lil_to_string(argv[1]));
+            const char* text = lil_to_string(argv[1]);
+
+            if (std::strncmp(text, "nick:", 5) == 0)
+            {
+                const char* nick = text + 5;
+                tim::app()->mqtt()->publish("setNick/" + tcl->terminal()->id().to_string(),
+                                            nick, std::strlen(nick));
+                return nullptr;
+            }
+
+            if (std::strncmp(text, "icon:", 5) == 0)
+            {
+                const char* icon = text + 5;
+                tim::app()->mqtt()->publish("setIcon/" + tcl->terminal()->id().to_string(),
+                                            icon, std::strlen(icon));
+                return nullptr;
+            }
+
+            tcl->terminal()->protocol()->write_str(text);
             return nullptr;
 
         default:
