@@ -65,8 +65,14 @@ void tim::p::user_service::connect(const std::filesystem::path &topic, const cha
 
 }
 
-void tim::p::user_service::setnick(const std::filesystem::path &topic, const char *data, std::size_t size)
+void tim::p::user_service::setnick(const std::filesystem::path &topic,
+                                   const char *data, std::size_t size)
 {
+    const tim::uuid user_id = topic.filename().string();
+
+    TIM_TRACE(Debug, "Setting user nick for '%s' ...",
+              user_id.to_string().c_str());
+
     tim::sqlite_query q(tim::app()->db(),
                         "UPDATE user SET nick = ? WHERE id = ?");
     if (!q.prepare())
@@ -74,8 +80,8 @@ void tim::p::user_service::setnick(const std::filesystem::path &topic, const cha
                 TIM_TR("Failed to prepare query '%s'."_en,
                        "Не могу подготовить запрос '%s' к базе данных."_ru),
                 q.sql().c_str());
+
     const std::string nick(data, size);
-    const tim::uuid user_id = topic.filename().string();
     q.bind(1, nick);
     q.bind(2, user_id.to_string());
 
@@ -87,8 +93,14 @@ void tim::p::user_service::setnick(const std::filesystem::path &topic, const cha
 
 }
 
-void tim::p::user_service::seticon(const std::filesystem::path &topic, const char *data, std::size_t size)
+void tim::p::user_service::seticon(const std::filesystem::path &topic,
+                                   const char *data, std::size_t size)
 {
+    const tim::uuid user_id = topic.filename().string();
+
+    TIM_TRACE(Debug, "Setting user icon for '%s' ...",
+              user_id.to_string().c_str());
+
     tim::sqlite_query q(tim::app()->db(),
                         "UPDATE user SET icon = ? WHERE id = ?");
     if (!q.prepare())
@@ -96,8 +108,8 @@ void tim::p::user_service::seticon(const std::filesystem::path &topic, const cha
                 TIM_TR("Failed to prepare query '%s'."_en,
                        "Не могу подготовить запрос '%s' к базе данных."_ru),
                 q.sql().c_str());
+
     const std::string icon(data, size);
-    const tim::uuid user_id = topic.filename().string();
     q.bind(1, icon);
     q.bind(2, user_id.to_string());
 

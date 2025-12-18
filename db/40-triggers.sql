@@ -47,27 +47,6 @@ BEGIN
 END;
 
 
--------------------
--- Проверка имён --
--------------------
-
--- Пользователи
-
-DROP TRIGGER IF EXISTS validate_user_nick_insert;
-CREATE TRIGGER validate_user_nick_insert BEFORE INSERT ON user
-    WHEN NEW.nick NOT REGEXP (SELECT value FROM configuration WHERE name = '"nick.regexp"' LIMIT 1)
-BEGIN
-    SELECT RAISE(ROLLBACK, 'Invalid user nick name.');
-END;
-
-DROP TRIGGER IF EXISTS validate_user_nick_update;
-CREATE TRIGGER validate_user_nick_update BEFORE UPDATE ON user
-    WHEN NEW.nick NOT REGEXP (SELECT value FROM configuration WHERE name = '"nick.regexp"' LIMIT 1)
-BEGIN
-    SELECT RAISE(ROLLBACK, 'Invalid user nick name.');
-END;
-
-
 -------------------------------------------
 -- Идентификаторы не могут быть изменены --
 -------------------------------------------

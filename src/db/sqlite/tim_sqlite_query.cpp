@@ -42,12 +42,14 @@ bool tim::sqlite_query::prepare()
     assert(!_d->_stmt && "The query is prepared already.");
 
     int res = SQLITE_OK;
+    const char *err_msg;
+
     for (unsigned count = 0; count < tim::DB_BUSY_TRIES; ++count)
         switch ((res = sqlite3_prepare_v2(_d->_db->sqlite(),
                                           _d->_sql.c_str(),
                                           (int)_d->_sql.size() + 1,
                                           &_d->_stmt,
-                                          nullptr)))
+                                          &err_msg)))
         {
             case SQLITE_OK:
                 _d->_prepared = true;
@@ -70,11 +72,12 @@ bool tim::sqlite_query::prepare()
 failure:
 
     return TIM_TRACE(Error,
-                    TIM_TR("Failed to prepare SQL query '%s' to database '%s': %s"_en,
-                          "Ошибка при подготовке SQL-запроса '%s' к базе данных '%s': %s"_ru),
+                    TIM_TR("Failed to prepare SQL query '%s' to database '%s': %s %s"_en,
+                          "Ошибка при подготовке SQL-запроса '%s' к базе данных '%s': %s %s"_ru),
                     _d->_sql.c_str(),
                     _d->_db->path().string().c_str(),
-                    sqlite3_errstr(res));
+                    sqlite3_errstr(res),
+                    err_msg);
 }
 
 bool tim::sqlite_query::bind(int index, bool value)

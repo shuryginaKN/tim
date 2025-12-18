@@ -30,7 +30,7 @@ bool tim::vtracef(tim::severity severity,
     std::fprintf(stderr, "%s", "\n");
 
     if (severity == tim::severity::Fatal)
-        std::exit(EXIT_FAILURE);
+        std::abort();
 
     return severity > tim::severity::Error;
 }

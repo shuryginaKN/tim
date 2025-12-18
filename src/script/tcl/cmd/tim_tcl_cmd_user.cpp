@@ -32,7 +32,8 @@ static lil_value_t tim_tcl_cmd_setnick(lil_t lil,
     assert(tcl);
 
     tim::app()->mqtt()->publish(std::filesystem::path("user/setnick")
-                                    / tcl->user_id().to_string(), nick.c_str(), nick.size());
+                                    / tcl->user_id().to_string(tim::uuid::format::NoBrackets),
+                                nick.c_str(), nick.size());
 
     return nullptr;
 }
@@ -56,7 +57,8 @@ static lil_value_t tim_tcl_cmd_seticon(lil_t lil,
     assert(tcl);
 
     tim::app()->mqtt()->publish(std::filesystem::path("user/seticon")
-                                    / tcl->user_id().to_string(), icon.c_str(), icon.size());
+                                    / tcl->user_id().to_string(tim::uuid::format::NoBrackets),
+                                icon.c_str(), icon.size());
 
     return nullptr;
 }
